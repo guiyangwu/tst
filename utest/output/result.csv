@@ -1,0 +1,29 @@
+Test,sgsap unit test,sgsap.t
+Test,sgsap unit test,sgsap.t
+Test,sgsap unit test,sgsap.t
+Test,sgsap unit test,sgsap.t
+Test,sgsap unit test,sgsap.t
+Test,sgsap unit test,sgsap.t
+Test,sgsap unit test,sgsap.t
+Test,sgsap unit test,sgsap.t
+Test,sgsap unit test,sgsap.t
+Test,sgsap unit test,sgsap.t
+Test,sgsap unit test,sgsap.t
+Test,sgsap unit test,sgsap.t
+Test,sgsap unit test,sgsap.t
+Test,sgsap unit test,sgsap.t
+1,verify component keyword and module keyword,passed
+2,reset MME1,failed
+3,location update,failed
+4,mosms,failed
+5,run user-defined procedure myproc1,passed
+6,mtsms,failed
+7,run load test,passed
+Test,sgsap unit test,./sgsap.t
+1,verify component keyword and module keyword,passed
+2,reset MME1,failed
+3,location update,failed
+4,mosms,failed
+5,run user-defined procedure myproc1,passed
+6,mtsms,failed
+7,run load test,passed
