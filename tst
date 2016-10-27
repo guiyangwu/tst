@@ -82,8 +82,8 @@ else:
 def tst(file_path):
     if os.path.exists(file_path):
         if os.path.isfile(file_path):
-            if '/' in tfile:
-                current_file_path = tfile[:tfile.rfind("/")]
+            if '/' in file_path:
+                current_file_path = file_path[:file_path.rfind("/")]
             else:
                 current_file_path = os.getcwd()
             sys.path.append(current_file_path) # add module path
