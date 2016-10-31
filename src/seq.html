@@ -1,0 +1,203 @@
+<!--
+#  Copyright 2015 GuiYang WU
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+-->
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+    </head>
+    <style type="text/css">
+        canvas{border:dashed 2px #CCC}
+    </style>
+    <script type="text/javascript">
+        function $$(id){
+            return document.getElementById(id);
+        }
+
+        function drawsequence(){        
+            var csv_text = $$("user_csv_text").value
+            if(csv_text.length == 0){
+                return;
+            }
+            
+            var can = $$('can');
+            var ctx = can.getContext('2d');
+            ctx.lineWidth=1;
+            ctx.strokeStyle = 'black';
+            ctx.font="bold 15px Courier New"; 
+            ctx.clearRect(0,0,can.width,can.height);
+                    
+            var textheight = 20
+            var textwidth = ctx.measureText("A").width
+            var compwidth = 300
+            var textmargin = textheight/10
+            var arrowwing = textheight/4
+            var posy = textheight
+            var posx1 = 0
+            var posx2 = 0
+            var comps = []
+            var lines = csv_text.split("\n")
+            var max_field_len = 0
+            var lifelinelength = textheight * (lines.length+2)
+            var idx = 0
+            // definition for tst
+            var tst_sys_keywords = ["title", "real", "tail", "tag", "tags", "check", "import", "procedure", "state", "create", "run", "case", "check"]
+
+            // adjust the component width by field string length
+            var temp_comps = []
+            for( var linenum in lines){
+                var fields = lines[linenum].split(",");
+                for( var fieldnum in fields){
+                    idx = tst_sys_keywords.indexOf(fields[0])
+                    if(idx != -1){
+                        continue
+                    }
+                    if(max_field_len < fields[fieldnum].length){
+                        max_field_len = fields[fieldnum].length
+                    }
+                    var idx = temp_comps.indexOf(fields[0])
+                    if( idx == -1 ){
+                        // new component name
+                        temp_comps.push(fields[0])
+                    }
+                    idx = temp_comps.indexOf(fields[2])
+                    if( idx == -1 ){
+                        // new component name
+                        temp_comps.push(fields[2])
+                    }
+                }
+            }
+            compwidth = textwidth * (max_field_len/2)
+            if(compwidth < textwidth * 2){
+                compwidth = textwidth * 2
+            }
+            var leftmargin = compwidth/2 + 10
+            
+            // adjust canvas size
+            can.width = temp_comps.length * compwidth + leftmargin
+            can.height = textheight * (lines.length+3)
+            
+            for( var linenum in lines){
+                var fields = lines[linenum].split(",");
+                
+                // calculate Y position
+                posy += textheight;
+                
+                // draw system message name
+                idx = tst_sys_keywords.indexOf(fields[0])
+                if( idx != -1 ){
+                    //ctx.moveTo(leftmargin,posy);
+                    //ctx.lineTo(leftmargin+compwidth*(temp_comps.length-1),posy);
+                    //ctx.stroke();
+                    ctx.textAlign="center";
+                    //ctx.font="15px Courier New"
+                    drawDashLine(ctx, leftmargin, posy, leftmargin+compwidth*(temp_comps.length-1), posy, 2);
+                    ctx.fillText(lines[linenum], (leftmargin+compwidth*temp_comps.length)/2,posy-textmargin);
+                    continue;
+                }
+                else{
+                // calculate X positions
+                idx = comps.indexOf(fields[0])
+                if( idx == -1 ){
+                    // new component name
+                    comps.push(fields[0])
+                    posx1 = compwidth * (comps.length - 1) + leftmargin
+                    // draw component name
+                    ctx.textAlign="center";
+                    //ctx.font="bold 15px Courier New"
+                    ctx.fillText(fields[0], posx1, textheight);
+                    // draw component life line
+                    ctx.moveTo(posx1,textheight+textmargin);
+                    ctx.lineTo(posx1,lifelinelength);
+                    ctx.stroke();
+                }
+                else{
+                    // component name drawn before
+                    posx1 = compwidth * idx + leftmargin
+                }
+                var idx = comps.indexOf(fields[2])
+                if( idx == -1 ){
+                    // new component name
+                    comps.push(fields[2])
+                    posx2 = compwidth * (comps.length - 1) + leftmargin
+                    // draw component name
+                    ctx.textAlign="center";
+                    //ctx.font="bold 15px Courier New"
+                    ctx.fillText(fields[2], posx2, textheight);
+                    // draw component life line
+                    ctx.moveTo(posx2,textheight+textmargin);
+                    ctx.lineTo(posx2,lifelinelength);
+                    ctx.stroke();
+                }
+                else{
+                    // component name drawn before
+                    posx2 = compwidth * idx + leftmargin
+                }
+                
+                // draw message name
+                ctx.textAlign="center";
+                idx = tst_sys_keywords.indexOf(fields[1])
+                //ctx.font="15px Courier New"  
+                ctx.fillText(fields[1], posx1+(posx2-posx1)/2,posy-textmargin);
+                
+                // draw arrow
+                ctx.moveTo(posx1,posy);
+                ctx.lineTo(posx2,posy);
+                ctx.stroke();
+                var wposx = 0
+                posx2 > posx1? wposx = -arrowwing: wposx = arrowwing;
+                ctx.moveTo(posx2, posy)
+                ctx.lineTo(posx2+wposx, posy-arrowwing/2)
+                ctx.stroke();
+                ctx.moveTo(posx2, posy)
+                ctx.lineTo(posx2+wposx, posy+arrowwing/2)
+                ctx.stroke();
+                }
+            }
+        }
+  
+        function drawDashLine(ctx, x1, y1, x2, y2, dashLength){
+            var dashLen = dashLength === undefined ? 5 : dashLength,
+            xpos = x2 - x1, //得到横向的宽度;
+            ypos = y2 - y1, //得到纵向的高度;
+            numDashes = Math.floor(Math.sqrt(xpos * xpos + ypos * ypos) / dashLen); 
+            //利用正切获取斜边的长度除以虚线长度，得到要分为多少段;
+            for(var i=0; i<numDashes; i++){
+                if(i % 2 === 0){
+                    ctx.moveTo(x1 + (xpos/numDashes) * i, y1 + (ypos/numDashes) * i); 
+                    //有了横向宽度和多少段，得出每一段是多长，起点 + 每段长度 * i = 要绘制的起点；
+                }
+                else{
+                    ctx.lineTo(x1 + (xpos/numDashes) * i, y1 + (ypos/numDashes) * i);
+                }
+            }
+            ctx.stroke();
+        }
+
+    </script>
+    <body onload="pageLoad();">
+        <p><b>t2s - .t script to sequence chart</b> &copy 2015 GuiYang WU</p>
+        <p>
+        <textarea id="user_csv_text" cols=100 rows=5></textarea>
+        </p>
+        <p>
+        <button id="draw" onclick="drawsequence();" >Draw</button>
+        </p>
+        <p>
+        <canvas id="can" width="500px" height="300px"></canvas>
+        </p>
+    </body>
+</html>

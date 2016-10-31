@@ -1,0 +1,10 @@
+Test,sgsap unit test,./utest/tcp.t
+1,verify component keyword and module keyword,passed
+Test,sgsap unit test,./utest/tcp.t
+1,verify component keyword and module keyword,passed
+Test,sgsap unit test,./utest/sgsap.t
+1,verify component keyword and module keyword,passed
+Test,sgsap unit test,./utest/sgsap.t
+1,verify component keyword and module keyword,passed
+Test,sgsap unit test,./utest/sgsap.t
+1,verify component keyword and module keyword,passed

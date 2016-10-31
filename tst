@@ -583,9 +583,23 @@ class Component:
     def receive_message(self, source, message, target, **kargs):
         if kargs.get("rawfile", None) != None: return
 
-        buf = self.interfaces[(target, kargs.get("interface", "default"))][0].recv(1024)
-        log.debug("MESSAGE: received " + str(len(buf)))
-        self.decode_message(self.interfaces[(target, kargs.get("interface", "default"))][1][1:], buf)
+        new_msg_type = None
+        exp_msg_type = self.field_tag_name_map[message]
+        print(new_msg_type, exp_msg_type)
+        start_time = time.time()
+        while new_msg_type != exp_msg_type and (end_time - start_time <= 3.0):
+            buf = self.interfaces[(target, kargs.get("interface", "default"))][0].recv(1024)
+            log.debug("MESSAGE: received " + str(len(buf)))
+            self.incoming = None
+            self.decode_message(self.interfaces[(target, kargs.get("interface", "default"))][1][1:], buf)
+            new_msg_type = get_message_type_from_header(self.incoming["header"])
+            end_time = time.time()
+
+        print(new_msg_type, exp_msg_type)
+        if end_time - start_time >= 3.0:
+            log.error("Failed to receive message: " + message)
+            return
+
         self.msgdata.update(self.incoming)
         if self.incoming.get("decoding result", "FAIL") != "SUCCESS":
             log.error('unexpected message received %s but expecting %s' % (msg_type, message))
@@ -596,6 +610,9 @@ class Component:
             # if tst creates a real component with FSM, then run it automatically
             if target in realcomponents and target in components and self.stt != None:
                 self.current_state = run_fsm(self.current_state, message)
+
+    def get_message_type_from_header(header):
+        return header
 
     def run_fsm(cur_state, message):
         stt_key = cur_state + "," + message
